@@ -9,6 +9,16 @@ condition was found, we say so, and we show the work.
 
 Contact: Discord `vance467` · Warpcast / GitHub / Superteam Earn: `@onchainvanguard`
 
+## Repository layout
+
+- [`audits/`](audits/) — independent adversarial audits of production programs.
+  Zero exploitable conditions found; each write-up shows the work and says so
+  plainly.
+- [`fuzzing/`](fuzzing/) — state-level fuzzing research against deployed mainnet
+  ELFs. This is where the remaining attack surface lives; see the section below.
+- [`reproductions/`](reproductions/) — reproductions of historical exploits for
+  study. Every file is labelled a reproduction, not an original finding.
+
 ## Completed engagements (self-directed, October 2026)
 
 | # | Target | Program (mainnet) | Area under review | Result |
@@ -69,12 +79,34 @@ snapshot. All analysis was flagged accordingly.
   differently: remaining-accounts authentication, account-model bitmap storage,
   compute-unit bounds on batch operations.
 
-Flagship write-ups live in [`audits/`](audits/); the full per-target set is being ported over.
+Flagship audit write-ups live in [`audits/`](audits/). Historical exploit
+reproductions live in [`reproductions/`](reproductions/), labelled as such.
+
+## State-level fuzzing against deployed binaries
+
+The highest-value work in this repository is in [`fuzzing/`](fuzzing/): a
+state-level fuzz campaign against the **deployed mainnet ELFs** of Jupiter
+Lend's oracle and vaults programs. The harness loads the real program binaries
+(extracted from their programdata accounts) into a **LiteSVM** local fork of
+live mainnet state — 808 archived accounts, zero mainnet writes — and
+binary-searches accept/revert boundaries on the deployed code, not a public
+source snapshot.
+
+The campaign surfaced two reportable items — a deep-crash liquidation
+*liveness* constraint and a deployed-vs-documented oracle staleness drift
+chain — both measured slot-exact and reproducible from the archived account
+set. Full write-up:
+
+- [`fuzzing/jupiter-lend-oracle-drift-liquidation-liveness.md`](fuzzing/jupiter-lend-oracle-drift-liquidation-liveness.md)
+
+The motivation: on top-tier Solana protocols the remaining attack surface is
+cross-program timing and edge-state reachability, which static review alone no
+longer reaches. Loading the deployed ELF — not the public repo snapshot, which
+can lag or diverge — is the only way to fuzz the code that actually runs.
 
 ## Tooling
 
-`svm-fuzz-lab` (in progress): local-fork harness that loads **real deployed
-mainnet ELFs** — extracted from programdata accounts — into LiteSVM for
-state-level fuzzing of cross-program interaction timing. Built because the
-remaining attack surface on top-tier Solana protocols is no longer reachable
-by static review alone.
+`svm-fuzz-lab`: the local-fork harness behind `fuzzing/`. It extracts deployed
+mainnet ELFs from programdata accounts and loads them into LiteSVM for
+state-level fuzzing of cross-program interaction timing and edge-state
+reachability.
