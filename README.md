@@ -2,10 +2,12 @@
 
 Independent adversarial review of production Solana programs. Hong Kong based.
 
-This repository documents completed audit passes over live mainnet deployments.
-Every claim is anchored to verifiable evidence: program IDs, deployment slots,
-deployed-binary contents, and source file/line references. Where no exploitable
-condition was found, we say so, and we show the work.
+This repository documents completed review passes over production Solana
+programs. Every claim is anchored to verifiable evidence: program IDs,
+deployment slots, deployed-binary contents, and source file/line references.
+Where no exploitable condition was found, we say so, and we show the work.
+Where an issue survived review, it carries a severity and the exact line that
+proves it.
 
 Contact: Discord `vance467` · Warpcast / GitHub / Superteam Earn: `@onchainvanguard`
 
@@ -14,6 +16,8 @@ Contact: Discord `vance467` · Warpcast / GitHub / Superteam Earn: `@onchainvang
 - [`audits/`](audits/) — independent adversarial audits of production programs.
   Zero exploitable conditions found; each write-up shows the work and says so
   plainly.
+- [`findings/`](findings/) — original findings with severity, file/line-anchored
+  against the source under review.
 - [`fuzzing/`](fuzzing/) — state-level fuzzing research against deployed mainnet
   ELFs. This is where the remaining attack surface lives; see the section below.
 - [`reproductions/`](reproductions/) — reproductions of historical exploits for
@@ -32,9 +36,18 @@ Contact: Discord `vance467` · Warpcast / GitHub / Superteam Earn: `@onchainvang
 | 7 | Jupiter Lend | `jup3YeL8QhtSx1e253b2FDvsMNC87fDrgQZivbrndc9` (Lending) | fToken mint/burn math, first-deposit inflation class, rewards model | No exploitable condition |
 | 8 | Jupiter Lend | Vaults program | Tick-bitmap liquidation engine ported from EVM; remaining-accounts forgery class; batch-liquidation scaling math | No exploitable condition |
 | 9 | Jupiter Lend | Flashloan + Oracle programs | Transaction introspection repayment enforcement; dual-track oracle pricing | No exploitable condition |
+| 10 | Percolator (perp engine fork) | deploy branches (static review) | Ported-function wiring: stress envelope, insurance ceilings, policy replay | 1 Medium (F-SE-1), 2 Low, 1 Informational |
 
-Nine consecutive passes, zero false-positive submissions. We do not file
-informational noise as findings.
+Ten engagements. Nine closed clean with zero false-positive submissions; the
+tenth (Percolator) surfaced one Medium finding with two Low and one
+Informational items bundled as supporting evidence. We do not file
+informational noise as standalone findings.
+
+The Percolator write-up (`findings/percolator-ported-function-wiring-gaps.md`)
+documents a single root-cause family: **write-side wiring dropped during the
+port** of the Toly perp engine. Fields, mechanisms, and validation checks all
+exist; the instruction-level call chains that drive them do not. One Medium
+(F-SE-1), two Low, one Informational, each file/line-anchored.
 
 ## What "verified against the deployed binary" means
 
