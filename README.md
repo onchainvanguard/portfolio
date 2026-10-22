@@ -18,6 +18,10 @@ Contact: Discord `vance467` · Warpcast / GitHub / Superteam Earn: `@onchainvang
   plainly.
 - [`findings/`](findings/) — original findings with severity, file/line-anchored
   against the source under review.
+- [`disclosures/`](disclosures/) — privilege-surface disclosures: verified
+  on-chain centralization findings where **no exploitable vulnerability is
+  claimed**. Kept separate from `findings/` so the record is unambiguous about
+  what was a confirmed finding versus a disclosed privilege concentration.
 - [`fuzzing/`](fuzzing/) — state-level fuzzing research against deployed mainnet
   ELFs. This is where the remaining attack surface lives; see the section below.
 - [`reproductions/`](reproductions/) — reproductions of historical exploits for
@@ -37,11 +41,15 @@ Contact: Discord `vance467` · Warpcast / GitHub / Superteam Earn: `@onchainvang
 | 8 | Jupiter Lend | Vaults program | Tick-bitmap liquidation engine ported from EVM; remaining-accounts forgery class; batch-liquidation scaling math | No exploitable condition |
 | 9 | Jupiter Lend | Flashloan + Oracle programs | Transaction introspection repayment enforcement; dual-track oracle pricing | No exploitable condition |
 | 10 | Percolator (perp engine fork) | deploy branches (static review) | Ported-function wiring: stress envelope, insurance ceilings, policy replay | 1 Medium (F-SE-1), 2 Low, 1 Informational |
+| 11 | Heaven (LIGHT) | `HEAVENoP2qxoeuF8Dj2oT1GHEnu49U5mJYkdeC8BAX2o` (AMM) | Privilege-surface disclosure: single-EOA upgrade, uncapped transfer-fee lever, treasury leverage, per-pool kill switches | Centralization disclosure — 5 findings, no exploit claimed |
 
-Ten engagements. Nine closed clean with zero false-positive submissions; the
-tenth (Percolator) surfaced one Medium finding with two Low and one
-Informational items bundled as supporting evidence. We do not file
-informational noise as standalone findings.
+Ten audit engagements plus one privilege-surface disclosure. Nine audits closed
+clean with zero false-positive submissions; the tenth (Percolator) surfaced one
+Medium finding with two Low and one Informational items bundled as supporting
+evidence. The eleventh (Heaven, closed-source) produced a privilege-surface
+disclosure — five centralization findings, no exploitable vulnerability claimed —
+kept in `disclosures/` rather than `findings/`. We do not file informational
+noise as standalone findings.
 
 The Percolator write-up (`findings/percolator-ported-function-wiring-gaps.md`)
 documents a single root-cause family: **write-side wiring dropped during the
