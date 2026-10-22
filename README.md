@@ -42,14 +42,18 @@ Contact: Discord `vance467` · Warpcast / GitHub / Superteam Earn: `@onchainvang
 | 9 | Jupiter Lend | Flashloan + Oracle programs | Transaction introspection repayment enforcement; dual-track oracle pricing | No exploitable condition |
 | 10 | Percolator (perp engine fork) | deploy branches (static review) | Ported-function wiring: stress envelope, insurance ceilings, policy replay | 1 Medium (F-SE-1), 2 Low, 1 Informational |
 | 11 | Heaven (LIGHT) | `HEAVENoP2qxoeuF8Dj2oT1GHEnu49U5mJYkdeC8BAX2o` (AMM) | Privilege-surface disclosure: single-EOA upgrade, uncapped transfer-fee lever, treasury leverage, per-pool kill switches | Centralization disclosure — 5 findings, no exploit claimed |
+| 12 | Dropset (FX order book) | `TESTnXwv2eHoftsSd5NEdpH4zEu7XRC8jviuoNPdB2Q` (testnet) | CloseSeat open-order check; seat/fill lifecycle; account resizing & free-stack allocator | 1 High (D-1), 1 Medium, 2 Low, 1 Info |
 
-Ten audit engagements plus one privilege-surface disclosure. Nine audits closed
+Eleven engagements plus one privilege-surface disclosure. Nine audits closed
 clean with zero false-positive submissions; the tenth (Percolator) surfaced one
 Medium finding with two Low and one Informational items bundled as supporting
 evidence. The eleventh (Heaven, closed-source) produced a privilege-surface
 disclosure — five centralization findings, no exploitable vulnerability claimed —
-kept in `disclosures/` rather than `findings/`. We do not file informational
-noise as standalone findings.
+kept in `disclosures/` rather than `findings/`. The twelfth (Dropset,
+pre-mainnet) surfaced one High — CloseSeat's missing open-order check, which
+leaves ghost orders able to permanently DoS a market side and lock order
+collateral — with one Medium, two Low, and one Informational items. We do not
+file informational noise as standalone findings.
 
 The Percolator write-up (`findings/percolator-ported-function-wiring-gaps.md`)
 documents a single root-cause family: **write-side wiring dropped during the
