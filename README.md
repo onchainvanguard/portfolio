@@ -1,13 +1,14 @@
-# OnChain Vanguard — Solana Security Research Portfolio
+# OnChain Vanguard — Cross-Chain Security Research Portfolio
 
-Independent adversarial review of production Solana programs. Hong Kong based.
+Independent adversarial review of production on-chain programs — Solana, EVM,
+and cross-chain bridges — plus the off-chain application layer that settles
+them. Hong Kong based.
 
-This repository documents completed review passes over production Solana
-programs. Every claim is anchored to verifiable evidence: program IDs,
-deployment slots, deployed-binary contents, and source file/line references.
-Where no exploitable condition was found, we say so, and we show the work.
-Where an issue survived review, it carries a severity and the exact line that
-proves it.
+This repository documents completed review passes over production code. Every
+claim is anchored to verifiable evidence: program IDs, deployment slots,
+deployed-binary contents, and source file/line references. Where no exploitable
+condition was found, we say so, and we show the work. Where an issue survived
+review, it carries a severity and the exact line that proves it.
 
 Contact: Discord `vance467` · Warpcast / GitHub / Superteam Earn: `@onchainvanguard`
 
@@ -26,6 +27,9 @@ Contact: Discord `vance467` · Warpcast / GitHub / Superteam Earn: `@onchainvang
   ELFs. This is where the remaining attack surface lives; see the section below.
 - [`reproductions/`](reproductions/) — reproductions of historical exploits for
   study. Every file is labelled a reproduction, not an original finding.
+- [`checklists/`](checklists/) — reusable methodology: the cross-chain / Web2
+  fast-scan ammunition table and the bridge audit report template. These are the
+  standing checklists that drive every engagement above.
 
 ## Completed engagements (self-directed, October 2026)
 
@@ -43,17 +47,35 @@ Contact: Discord `vance467` · Warpcast / GitHub / Superteam Earn: `@onchainvang
 | 10 | Percolator (perp engine fork) | deploy branches (static review) | Ported-function wiring: stress envelope, insurance ceilings, policy replay | 1 Medium (F-SE-1), 2 Low, 1 Informational |
 | 11 | Heaven (LIGHT) | `HEAVENoP2qxoeuF8Dj2oT1GHEnu49U5mJYkdeC8BAX2o` (AMM) | Privilege-surface disclosure: single-EOA upgrade, uncapped transfer-fee lever, treasury leverage, per-pool kill switches | Centralization disclosure — 5 findings, no exploit claimed |
 | 12 | Dropset (FX order book) | `TESTnXwv2eHoftsSd5NEdpH4zEu7XRC8jviuoNPdB2Q` (testnet) | CloseSeat open-order check; seat/fill lifecycle; account resizing & free-stack allocator | 1 High (D-1), 1 Medium, 2 Low, 1 Info |
+| 13 | Allbridge Classic (Solana bridge) | n/a — program id is a test placeholder; live address not verified | Signature collection vs. verification; validator/blockchain authorization | 1 Critical (A-1), 1 High, 1 Medium, 1 Info |
+| 14 | Zoneless (marketplace payout API) | n/a — off-chain TypeScript/Express + MongoDB | Payout authorization, idempotency tenant isolation, KYC webhook signature | 1 Medium (Z-1), 1 Low, 2 Info |
+| 15 | SSI Protocol (RWA basket / wrapped token) | `SoSoValueLabs/ssi-protocol` @ `0fd83a0` (static review) | Re-review vs Quantstamp; StakeToken lock overloads, token-hash collision, order-signature scheme | 3 Low, 3 Info |
 
-Eleven engagements plus one privilege-surface disclosure. Nine audits closed
-clean with zero false-positive submissions; the tenth (Percolator) surfaced one
-Medium finding with two Low and one Informational items bundled as supporting
-evidence. The eleventh (Heaven, closed-source) produced a privilege-surface
-disclosure — five centralization findings, no exploitable vulnerability claimed —
-kept in `disclosures/` rather than `findings/`. The twelfth (Dropset,
-pre-mainnet) surfaced one High — CloseSeat's missing open-order check, which
-leaves ghost orders able to permanently DoS a market side and lock order
-collateral — with one Medium, two Low, and one Informational items. We do not
-file informational noise as standalone findings.
+Fifteen engagements across Solana, EVM, bridge, and off-chain layers. Twelve
+Solana reviews closed with zero false-positive submissions except where a real
+condition surfaced:
+Percolator yielded one Medium (ported-function wiring gaps) with two Low and one
+Informational bundled as supporting evidence; Heaven (closed-source) produced a
+privilege-surface disclosure — five centralization findings, no exploitable
+vulnerability claimed — kept in `disclosures/`; Dropset (pre-mainnet) surfaced
+one High — CloseSeat's missing open-order check, which leaves ghost orders able
+to permanently DoS a market side and lock order collateral.
+
+The cross-chain and off-chain layer is newer and covered by the same
+evidence-anchored standard. Allbridge Classic (Solana bridge) surfaced a
+Critical — `AddSignature` stores validator signatures without ever verifying
+them, combined with an unauthenticated `AddValidator` — breaking the bridge's
+core "verified quorum" invariant at the root. Zoneless (a Stripe-Connect-style
+payout API) surfaced a Medium — an idempotency key not scoped to its tenant —
+with payout authorization and KYC-webhook signature verification both held up
+under review. SSI Protocol (an RWA basket / wrapped-token protocol, first EVM
+production target) was re-reviewed against its Quantstamp report; the two prior
+Mediums are fixed in the current tree, and the pass surfaced three Low items —
+inconsistent `lock` overloads enabling an over-lock DoS, a residual
+`encodePacked` token-hash collision, and raw-keccak256 order signatures without
+EIP-712 — documented in
+[`findings/ssi-protocol-residual-low-findings.md`](findings/ssi-protocol-residual-low-findings.md).
+We do not file informational noise as standalone findings.
 
 The Percolator write-up (`findings/percolator-ported-function-wiring-gaps.md`)
 documents a single root-cause family: **write-side wiring dropped during the
@@ -105,7 +127,9 @@ snapshot. All analysis was flagged accordingly.
   compute-unit bounds on batch operations.
 
 Flagship audit write-ups live in [`audits/`](audits/). Historical exploit
-reproductions live in [`reproductions/`](reproductions/), labelled as such.
+reproductions live in [`reproductions/`](reproductions/), labelled as such —
+covering Solana (Cashio, Mango, Token-2022), cross-chain (Wormhole), and EVM
+(The DAO reentrancy), so the record spans every layer we review.
 
 ## State-level fuzzing against deployed binaries
 
